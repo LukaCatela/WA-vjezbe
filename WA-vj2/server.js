@@ -13,19 +13,28 @@ const pizze = [
 { id: 5, naziv: 'Vegetariana', cijena: 9.0 }
 ];
 
-/*
+
 app.get('/pizze', (req, res) => {
+    //res.send("Ovo su sve dostupne pizze: ");
     res.json(pizze).status(200);
 });
-*/
 
-app.get('/pizze/:naziv', (req, res) => {
-    const naziv_pizza = req.params.naziv;
-
-    if(!req.params.naziv){
-        return res.json(pizze).status(200);
+// Paziti na redoslijed ruta npr. tu nije delalo jer je :naziv bija prije :id
+app.get('/pizze/:id', (req, res, next) =>{
+    if (isNaN(req.params.id)) return next();
+    const id_pizza = req.params.id;
+    const trazena_pizza_id = pizze.find(pizza => pizza.id == id_pizza);
+    if(!trazena_pizza_id){
+        return res.status(404).json({
+            greska: 'Pizza s trazenim id-om ne postoji!'
+        });
     }
+    return res.status(200).json(trazena_pizza_id);
+})
+app.get('/pizze/:naziv', (req, res) => {
+    const naziv_pizza = req.params.naziv; // Putanja do parametra
 
+    //trazimo pizzu
     const trazena_pizza = pizze.find(pizza => pizza.naziv == naziv_pizza);
 
     if(!trazena_pizza){
@@ -36,6 +45,7 @@ app.get('/pizze/:naziv', (req, res) => {
     return res.json(trazena_pizza).status(200);
 })
 
+
 app.post('/pizze', (req, res) => {
     const nova_pizza = req.body;
 
@@ -43,6 +53,12 @@ app.post('/pizze', (req, res) => {
 
     const dozvoljeni_kljucevi = ["naziv", "cijena"];
     const nova_pizza_kljucevi = Object.keys(nova_pizza);
+
+    const nedozvoljeni_kljucevi = nova_pizza_kljucevi.find(kljuc => !dozvoljeni_kljucevi.includes(kljuc));
+
+    if(nedozvoljeni_kljucevi){
+        return res.status(400).json({greska:`Nedozvoljeno polje: ${nedozvoljeni_kljucevi}`});
+    }
 
     let postoji = pizze.find(pizza => pizza.naziv == naziv_nove_pizze);
 
