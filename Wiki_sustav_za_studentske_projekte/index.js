@@ -1,11 +1,24 @@
-const express = require('express'); //jer smo stavili u package.json type:module umisto commonjs
-const app = express();
-
+import express from 'express';
+import usersRouter from './routes/users.js';
+import projektiRouter from './routes/projects.js';
+//const express = require('express'); //jer smo stavili u package.json type:module umisto commonjs
 const router = express.Router();
 
-const PORT = 3000;
-app.listen(PORT);
+const app = express();
 
-app.get("/", (req, res)=>{
-    res.send("HELLO WORLD!")
-})
+
+const PORT = 3000;
+app.use(express.json());
+
+app.listen(PORT, error => {
+    if(error){
+        console.error(`Greška prilikom pokretanja poslužitelja: ${error.message}`);
+    } else {
+        console.log(`Server dela na portu: ${PORT}`);
+    };
+});
+;
+
+
+
+export default router;
