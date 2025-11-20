@@ -1,5 +1,4 @@
 import express from 'express';
-import { use } from 'react';
 
 
 const router = express.Router();
@@ -99,7 +98,7 @@ const users = [
     ime: "Luka",
     prezime: "Catela",
     rola: "student",
-    jmbag: "0007185788",
+    jmbag: "00071857889",
     email: "luka.catela@fipu.hr",
     fakultet: "FIPU"
   }
@@ -165,7 +164,36 @@ router.delete("/:jmbag", (req, res) =>{
 });
 
 //PATCH djelomicna dopuna usera
+router.patch("/:id", (req, res) => {
+  const user_id = req.params.id;
+  const index = users.findIndex(u => u.id == user_id);
+  if (index === -1) {
+    return res.status(404).json({ greska: "Korisnik ne postoji!" });
+  }
 
+  const user = users[index];
+
+  const dozvoljena_polja = ["ime", "prezime", "rola", "jmbag", "email", "fakultet"];
+  const poslani_kljuc = Object.keys(req.body);
+
+  const nedozvoljeni_kljuc = poslani_kljuc.find(k => !dozvoljena_polja.includes(k));
+   
+
+  if(nedozvoljeni_kljuc){
+    return res.status(400).json({greska: `Polje s ${nedozvoljeni_kljuc} nije dozvoljeno!`});
+  }
+
+  if(req.body.jmbag && req.body.jmbag.length != 11){
+    return res.status(400).json({ greska: "JMBG mora imati 11 znakova!" })
+  }
+
+  poslani_kljuc.forEach(key =>{
+    user[key] = req.body[key]
+  });
+
+
+  return res.status(200).json(user);
+})
 //PUT potpuna zamjena usera
 router.put("/:id", (req, res) =>{
   // pronadi index
@@ -173,12 +201,12 @@ router.put("/:id", (req, res) =>{
   const index = users.findIndex(u => u.id == user_id);
 
   if (index === -1) {
-    return res.status(404).json({ greska: "Pizza ne postoji!" });
+    return res.status(404).json({ greska: "Korisnik ne postoji!" });
   }
   const {ime, prezime, rola, jmbag, email, fakultet} = req.body;
   // jednostavna validacija
   if(!ime || !prezime || !rola || !jmbag || !email || !fakultet){
-    return res.status(400).json({greska: "Nisu poslani sva polja!"})
+    return res.status(400).json({greska: "Nisu poslana sva polja!"})
   }
   // validacija duljine JMBAG-a
 if (jmbag.length !== 11) {
@@ -193,7 +221,7 @@ if (jmbg_user) {
 }
 
   users[index] = {
-    id: Number(id),
+    id: Number(user_id),
     ime,
     prezime,
     rola,
