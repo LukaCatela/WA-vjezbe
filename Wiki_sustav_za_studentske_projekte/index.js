@@ -12,6 +12,8 @@ app.use(express.json());
 
 app.use('/users', usersRouter);
 
+app.use(projektiRouter);
+
 app.listen(PORT, error => {
     if(error){
         console.error(`Greška prilikom pokretanja poslužitelja: ${error.message}`);
@@ -20,7 +22,3 @@ app.listen(PORT, error => {
     };
 });
 ;
-
-
-
-export default router;

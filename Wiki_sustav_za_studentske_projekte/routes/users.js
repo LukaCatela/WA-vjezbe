@@ -1,4 +1,5 @@
 import express from 'express';
+import { use } from 'react';
 
 
 const router = express.Router();
@@ -108,6 +109,7 @@ const users = [
 router.get('/', (req, res) => {
   res.status(200).json(users);
 });
+
 // GET User po id-u
 router.get('/:id', (req, res) => {
   const id_user = req.params.id;
@@ -119,8 +121,9 @@ router.get('/:id', (req, res) => {
     }
     return res.status(200).json(trazeni_user_id);
 });
+
 //POST novi user
-router.post('/post', (req, res) => {
+router.post('/user', (req, res) => {
   const novi_user = req.body; // kod POSTA uvijek stavljamo body
   const naziv_user = novi_user.ime;
   const prezime_user = novi_user.prezime;
@@ -150,7 +153,55 @@ router.post('/post', (req, res) => {
   users.push(novi_zapis);
   return res.status(201).json(users);
 });
+
 // DELETE user po JMBG-u
+router.delete("/:jmbag", (req, res) =>{
+  const JMBG_user = req.params.jmbag;
+  const trazeni_korisnik = users.findIndex(user => user.jmbag == JMBG_user);
+  if(!trazeni_korisnik){
+    return res.status(404).json({greska: `Korisnik sa ${JMBG_user} ne postoji`});
+  }
+  users.splice(trazeni_korisnik, 1);
+});
 
 //PATCH djelomicna dopuna usera
+
+//PUT potpuna zamjena usera
+router.put("/:id", (req, res) =>{
+  // pronadi index
+  const user_id = req.params.id;
+  const index = users.findIndex(u => u.id == user_id);
+
+  if (index === -1) {
+    return res.status(404).json({ greska: "Pizza ne postoji!" });
+  }
+  const {ime, prezime, rola, jmbag, email, fakultet} = req.body;
+  // jednostavna validacija
+  if(!ime || !prezime || !rola || !jmbag || !email || !fakultet){
+    return res.status(400).json({greska: "Nisu poslani sva polja!"})
+  }
+  // validacija duljine JMBAG-a
+if (jmbag.length !== 11) {
+  return res.status(400).json({ greska: "JMBAG mora imati točno 11 znakova." });
+}
+
+// provjera postoji li već isti JMBAG
+const jmbg_user = users.find(u => u.jmbag == jmbag);
+
+if (jmbg_user) {
+  return res.status(400).json({ greska: "Korisnik s tim JMBAG-om već postoji." });
+}
+
+  users[index] = {
+    id: Number(id),
+    ime,
+    prezime,
+    rola,
+    jmbag,
+    email,
+    fakultet,
+  };
+
+  return res.status(200).json(users[index]);
+});
 export default router;
