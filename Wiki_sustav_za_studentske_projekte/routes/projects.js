@@ -83,5 +83,30 @@ const projekti = [
   }
 ];
 
+router.get('/', (req, res) =>{
+  res.status(200).json(projekti);
+});
+
+router.get('/:id', (req, res) => {
+  const project_id = req.params.id;
+  const trazeni_project = projekti.find(p=> p.id == project_id)
+  if(!trazeni_project){
+    res.status(418).json({greska: `Trazeni id ${project_id} ne postoji!`});
+  }
+  return res.status(200).json(trazeni_project);
+});
+
+router.delete('/:id', (req, res) => {
+  const project_id = req.params.id;
+  const trazeni_project = projekti.find(p=> p.id == project_id)
+  if(!trazeni_project){
+    res.status(418).json({greska: `Trazeni id ${project_id} ne postoji!`});
+  }
+  projekti.splice(trazeni_project, 1);
+  return res.status(200).send("Korisnik je izbrisan!");
+})
+
+
+
 
 export default router;
