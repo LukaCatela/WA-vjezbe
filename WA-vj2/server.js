@@ -3,6 +3,7 @@ import express from "express"
 const app = express();
 //middleware
 app.use(express.json());
+
 const PORT = 3000;
 
 const pizze = [
@@ -45,6 +46,29 @@ app.get('/pizze/:naziv', (req, res) => {
     return res.json(trazena_pizza).status(200);
 })
 
+app.get('/pizze/:parametar', (req, res) => {
+    const parametar = req.params.parametar;
+    if(parametar == String){
+        const trazena_pizza_naziv = pizze.find(pizza => pizza.naziv == parametar);
+        if(!trazena_pizza_naziv){
+        return res.json({
+            greska: 'Pizza ne postoji!'
+        }).status(404);
+    }
+    return res.json(trazena_pizza_naziv).status(200);
+    } elif (parametar == Number) {
+        const trazena_pizza_id = pizze.find(pizza => pizza.id == parametar);
+        if(!trazena_pizza_id){
+        return res.json({
+            greska: 'Pizza ne postoji!'
+        }).status(404);
+    }
+    return res.json(trazena_pizza_id).status(200);
+    } else{
+        res.send("Trazena pizza ne postoji");
+    }
+});
+
 
 app.post('/pizze', (req, res) => {
     const nova_pizza = req.body;
@@ -77,6 +101,20 @@ app.post('/pizze', (req, res) => {
     // pizze.push({id: novi_id, ...novi_zapis});
     return res.json(pizze).status(201);
 })
+
+app.post('/naruci', (req, res) => {
+    const narudzba = req.body;
+    const kljucevi = Object.keys(narudzba);
+    console.log(narudzba);
+    console.log(kljucevi);
+
+    if(!(kljucevi.includes('pizza') && kljucevi.includes('velicina'))){
+        res.send('Niste poslali sve potreben podatke za narudzbu!');
+        return;
+    }
+    console.log('Primljeni podaci:', narudzba);
+    res.send('Vaša narudžba je uspješno zaprimljena!');
+});
 
 app.listen(PORT, error =>{
     if (error){
