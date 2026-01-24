@@ -92,5 +92,4 @@ onMounted(()=>{
     fetchPizze();
 })
 
-
 </script>
